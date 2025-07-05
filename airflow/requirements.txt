@@ -2,3 +2,9 @@
 dbt-core
 dbt-bigquery
 python-dotenv
+sqlalchemy
+google-cloud-storage
+google-cloud-bigquery
+pandas
+pyarrow
+apache-airflow-providers-google
