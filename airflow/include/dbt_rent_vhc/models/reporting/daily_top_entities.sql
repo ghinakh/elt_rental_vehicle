@@ -5,7 +5,7 @@
 
 WITH denorm AS (
   SELECT *
-  FROM {{ ref('transform_dataset.denormalized_transactions') }}
+  FROM {{ ref('denormalized_transactions') }}
 ),
 --
 -- RANK 1 users per day
@@ -14,7 +14,7 @@ daily_user_rank_base AS (
   SELECT
     DATE(rental_end_time) AS rental_date,
     user_id,
-    full_name,
+    ANY_VALUE(full_name) AS full_name,
     COUNT(*) AS transactions_per_user
   FROM denorm
   GROUP BY rental_date, user_id
@@ -45,8 +45,8 @@ daily_vehicle_rank_base AS (
   SELECT
     DATE(rental_end_time) AS rental_date,
     vehicle_id,
-    vehicle_brand,
-    vehicle_type,
+    ANY_VALUE(vehicle_brand) AS vehicle_brand,
+    ANY_VALUE(vehicle_type) AS vehicle_type,
     COUNT(*) AS transactions_per_vehicle
   FROM denorm
   GROUP BY rental_date, vehicle_id

@@ -5,8 +5,10 @@
 
 WITH group_by_daily AS (
     SELECT
-        rental_year, rental_month, rental_day,
-        DATE_FROM_PARTS(rental_year, rental_month, rental_day) AS rental_date,
+        rental_year, 
+        rental_month, 
+        rental_day,
+        MAX(DATE(rental_end_time)) AS rental_date,
         COUNT(*) AS total_transactions,
         COUNT(DISTINCT user_id) AS unique_users,
         COUNT(DISTINCT vehicle_id) AS unique_vehicles,
@@ -18,7 +20,7 @@ WITH group_by_daily AS (
         AVG(rental_duration_days) AS avg_rental_duration_days,
         COUNT(DISTINCT pickup_city) AS unique_pickup_cities,
         COUNT(DISTINCT dropoff_city) AS unique_dropoff_cities
-    FROM {{ ref('transform_dataset.denormalized_transactions') }}
+    FROM {{ ref('denormalized_transactions') }}
     GROUP BY rental_year, rental_month, rental_day
 )
 

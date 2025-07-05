@@ -9,13 +9,13 @@ WITH users as (
         user_id,
         first_name,
         last_name,
-        CONCAT(u.first_name,' ',u.last_name) AS full_name,
+        CONCAT(first_name,' ',last_name) AS full_name,
         email,
         phone_number,
         driver_license_number,
         driver_license_expiry,
         creation_date,
-        date_diff(current_date, creation_date, day) as age_account
+        date_diff(current_date, creation_date, day) as age_account,
         is_active
     FROM {{ ref('snapshot_users') }}
     WHERE dbt_valid_to IS NULL 

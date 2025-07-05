@@ -13,4 +13,4 @@ SELECT
     zip_code,
     latitude,
     longitude
-FROM {{ ref('seed_dataset.location_enrichment') }}
+FROM {{ ref('location_enrichment') }}

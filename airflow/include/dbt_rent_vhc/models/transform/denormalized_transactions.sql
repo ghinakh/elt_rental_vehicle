@@ -63,8 +63,8 @@ SELECT
     ld.latitude AS dropoff_latitude,
     ld.longitude AS dropoff_longitude,
     t.total_amount
-FROM {{ ref('reporting_dataset.fact_transactions') }} t
-INNER JOIN {{ ref('reporting_dataset.dim_users') }} u ON t.user_id = u.user_id
-INNER JOIN {{ ref('reporting_dataset.dim_vehicles') }} v ON t.vehicle_id = v.vehicle_id
-INNER JOIN {{ ref('reporting_dataset.dim_locations') }} lp ON t.pickup_location = lp.location_id
-INNER JOIN {{ ref('reporting_dataset.dim_locations') }} ld ON t.dropoff_location = ld.location_id
+FROM {{ ref('fact_transactions') }} t
+INNER JOIN {{ ref('dim_users') }} u ON t.user_id = u.user_id
+INNER JOIN {{ ref('dim_vehicles') }} v ON t.vehicle_id = v.vehicle_id
+INNER JOIN {{ ref('dim_locations') }} lp ON t.pickup_location = lp.location_id
+INNER JOIN {{ ref('dim_locations') }} ld ON t.dropoff_location = ld.location_id

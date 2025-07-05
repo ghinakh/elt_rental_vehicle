@@ -18,16 +18,16 @@ WITH group_by_vehicle AS (
         MAX(total_amount) AS max_revenue,
         MIN(total_amount) AS min_revenue,
         MIN(rental_start_time) AS first_rented,
-        MAX(rental_end_time) AS last_rented,
+        MAX(rental_start_time) AS last_rented,
         SUM(rental_duration_days) AS total_days_rented,
         AVG(rental_duration_days) AS avg_days_rented
-    FROM {{ ref('transform_dataset.denormalized_transactions') }}
+    FROM {{ ref('denormalized_transactions') }}
     GROUP BY vehicle_id
 ),
 -- Pickup City Usage
 pickup_city_usage_base AS (
     SELECT vehicle_id, pickup_city, COUNT(*) AS freq
-    FROM {{ ref('transform_dataset.denormalized_transactions') }}
+    FROM {{ ref('denormalized_transactions') }}
     GROUP BY vehicle_id, pickup_city
 ),
 pickup_city_usage AS (
@@ -38,7 +38,7 @@ pickup_city_usage AS (
 -- Dropoff City Usage
 dropoff_city_usage_base AS (
     SELECT vehicle_id, dropoff_city, COUNT(*) AS freq
-    FROM {{ ref('transform_dataset.denormalized_transactions') }}
+    FROM {{ ref('denormalized_transactions') }}
     GROUP BY vehicle_id, dropoff_city
 ),
 dropoff_city_usage AS (
@@ -53,12 +53,13 @@ users_usage_base AS (
         user_id,
         ANY_VALUE(full_name) AS full_name,
         COUNT(*) AS freq,
-    FROM {{ ref('transform_dataset.denormalized_transactions') }}
+    FROM {{ ref('denormalized_transactions') }}
     GROUP BY vehicle_id, user_id
 ),
 users_usage AS (
     SELECT *,
            ROW_NUMBER() OVER (PARTITION BY vehicle_id ORDER BY freq DESC) AS rn
+    FROM users_usage_base
 ),
 most_frequent_data AS (
     SELECT
@@ -67,7 +68,7 @@ most_frequent_data AS (
         d.dropoff_city AS most_frequent_dropoff_city,
         u.user_id AS most_frequent_user_id,
         u.full_name AS most_frequent_user_name
-    FROM (SELECT DISTINCT vehicle_id FROM {{ ref('transform_dataset.denormalized_transactions') }}) v
+    FROM (SELECT DISTINCT vehicle_id FROM {{ ref('denormalized_transactions') }}) v
     LEFT JOIN pickup_city_usage p ON v.vehicle_id = p.vehicle_id AND p.rn = 1
     LEFT JOIN dropoff_city_usage d ON v.vehicle_id = d.vehicle_id AND d.rn = 1
     LEFT JOIN users_usage u ON v.vehicle_id = u.vehicle_id AND u.rn = 1

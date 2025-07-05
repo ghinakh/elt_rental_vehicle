@@ -6,12 +6,20 @@
 
 
 WITH valid_transactions AS (
-    SELECT *
-    FROM {{ ref('staging_dataset.clean_transactions') }} t
-    INNER JOIN {{ ref('reporting_dataset.dim_users') }} u ON t.user_id = u.user_id
-    INNER JOIN {{ ref('reporting_dataset.dim_vehicles') }} v ON t.vehicle_id = v.vehicle_id
-    INNER JOIN {{ ref('reporting_dataset.dim_locations') }} lp ON t.pickup_location = lp.location_id
-    INNER JOIN {{ ref('reporting_dataset.dim_locations') }} ld ON t.dropoff_location = ld.location_id
+    SELECT 
+        t.rental_id,
+        t.user_id,
+        t.vehicle_id,
+        t.rental_start_time,
+        t.rental_end_time,
+        t.pickup_location,
+        t.dropoff_location,
+        t.total_amount
+    FROM {{ ref('clean_transactions') }} t
+    INNER JOIN {{ ref('dim_users') }} u ON t.user_id = u.user_id
+    INNER JOIN {{ ref('dim_vehicles') }} v ON t.vehicle_id = v.vehicle_id
+    INNER JOIN {{ ref('dim_locations') }} lp ON t.pickup_location = lp.location_id
+    INNER JOIN {{ ref('dim_locations') }} ld ON t.dropoff_location = ld.location_id
 
     {% if is_incremental() %}
       -- Kalau incremental, hanya ambil data baru

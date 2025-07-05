@@ -17,16 +17,16 @@ WITH group_by_user AS (
         MAX(total_amount) AS max_spending,
         MIN(total_amount) AS min_spending,
         MIN(rental_start_time) AS first_transaction_date,
-        MAX(rental_end_time) AS last_transaction_date,
+        MAX(rental_start_time) AS last_transaction_date,
         SUM(rental_duration_days) AS total_rental_days,
         AVG(rental_duration_days) AS avg_rental_duration_days
-    FROM {{ ref('transform_dataset.denormalized_transactions') }}
+    FROM {{ ref('denormalized_transactions') }}
     GROUP BY user_id
 ),
 -- Vehicle Usage
 vehicle_usage_base AS (
     SELECT user_id, vehicle_id, COUNT(*) AS freq
-    FROM {{ ref('transform_dataset.denormalized_transactions') }}
+    FROM {{ ref('denormalized_transactions') }}
     GROUP BY user_id, vehicle_id
 ),
 vehicle_usage AS (
@@ -37,7 +37,7 @@ vehicle_usage AS (
 -- Brand Usage
 brand_usage_base AS (
     SELECT user_id, vehicle_brand, COUNT(*) AS freq
-    FROM {{ ref('transform_dataset.denormalized_transactions') }}
+    FROM {{ ref('denormalized_transactions') }}
     GROUP BY user_id, vehicle_brand
 ),
 brand_usage AS (
@@ -48,7 +48,7 @@ brand_usage AS (
 -- Vehicle Type Usage
 v_type_usage_base AS (
     SELECT user_id, vehicle_type, COUNT(*) AS freq
-    FROM {{ ref('transform_dataset.denormalized_transactions') }}
+    FROM {{ ref('denormalized_transactions') }}
     GROUP BY user_id, vehicle_type
 ),
 v_type_usage AS (
@@ -59,7 +59,7 @@ v_type_usage AS (
 -- Pickup City Usage
 pickup_city_usage_base AS (
     SELECT user_id, pickup_city, COUNT(*) AS freq
-    FROM {{ ref('transform_dataset.denormalized_transactions') }}
+    FROM {{ ref('denormalized_transactions') }}
     GROUP BY user_id, pickup_city
 ),
 pickup_city_usage AS (
@@ -70,7 +70,7 @@ pickup_city_usage AS (
 -- Dropoff City Usage
 dropoff_city_usage_base AS (
     SELECT user_id, dropoff_city, COUNT(*) AS freq
-    FROM {{ ref('transform_dataset.denormalized_transactions') }}
+    FROM {{ ref('denormalized_transactions') }}
     GROUP BY user_id, dropoff_city
 ),
 dropoff_city_usage AS (
@@ -86,7 +86,7 @@ most_frequent_data AS (
         vt.vehicle_type AS most_used_vehicle_type,
         p.pickup_city AS most_used_pickup_city,
         d.dropoff_city AS most_used_dropoff_city
-    FROM (SELECT DISTINCT user_id FROM {{ ref('transform_dataset.denormalized_transactions') }}) u
+    FROM (SELECT DISTINCT user_id FROM {{ ref('denormalized_transactions') }}) u
     LEFT JOIN vehicle_usage v ON u.user_id = v.user_id AND v.rn = 1
     LEFT JOIN brand_usage b ON u.user_id = b.user_id AND b.rn = 1
     LEFT JOIN v_type_usage vt ON u.user_id = vt.user_id AND vt.rn = 1
