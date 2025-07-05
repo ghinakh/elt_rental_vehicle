@@ -9,6 +9,6 @@ dbt_rent_vhc:
       method: service-account
       priority: interactive
       project: lucky-altar-460913-b7
-      threads: 2
+      threads: 3
       type: bigquery
   target: dev
