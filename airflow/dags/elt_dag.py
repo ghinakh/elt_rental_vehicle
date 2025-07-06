@@ -13,6 +13,8 @@ from airflow.providers.google.cloud.transfers.gcs_to_bigquery import GCSToBigQue
 from airflow.providers.google.cloud.operators.bigquery import BigQueryCreateEmptyDatasetOperator
 from airflow.operators.bash import BashOperator 
 from airflow.sdk import Variable
+import pytz
+
 
 # Load .env
 load_dotenv()
@@ -30,7 +32,7 @@ bucket_name = os.getenv("BUCKET_NAME")
 project_id = os.getenv("PROJECT_ID")
 gcp_service_account = os.getenv("SERVICE_ACCOUNT")
 
-yesterday_str = (datetime.today().date() - timedelta(days=1)).strftime('%Y-%m-%d')
+yesterday_str = (datetime.now(pytz.timezone('Asia/Jakarta')).date() - timedelta(days=1)).strftime('%Y-%m-%d')
 start_date = Variable.get("rent_vhc_start_date")
 
 
@@ -41,9 +43,10 @@ else:
 
 # DAG
 with DAG(
-    'elt_rent_vhc_dag',
-    start_date=datetime(2025, 7, 4),
+    'dev_elt_rent_vhc_dag',
+    start_date=datetime(2025, 7, 5),
     schedule='@daily',
+    # schedule='* * * * *',
     catchup=False,
     tags=['portofolio']
 ) as dag:
@@ -56,7 +59,7 @@ with DAG(
 
         # select users, vehicles, transactions where date >= 2024-01-01 and date < today() -> 2025-07-04 
         # (it should return data from 2024-01-01 until 2025-07-03 or the original data)
-        df_users = pd.read_sql(f"SELECT * FROM users WHERE creation_date >= '{start_date}' AND creation_date < CURDATE();", con=engine)
+        df_users = pd.read_sql(f"SELECT * FROM users WHERE update_at >= '{start_date}' AND update_at < CURDATE();", con=engine)
         df_vehicles = pd.read_sql(f"SELECT * FROM vehicles WHERE STR_TO_DATE(last_update_timestamp, '%d-%m-%Y') >= '{start_date}' AND STR_TO_DATE(last_update_timestamp, '%d-%m-%Y') < CURDATE();", con=engine)
         df_transactions = pd.read_sql(f"SELECT * FROM transactions WHERE DATE(rental_end_time) >= '{start_date}' AND DATE(rental_end_time) < CURDATE();", con=engine)
 
@@ -281,7 +284,7 @@ with DAG(
 
     @task
     def update_start_date():
-        for_tomorrow = datetime.now().strftime("%Y-%m-%d")
+        for_tomorrow = datetime_in_Lagos = datetime.now(pytz.timezone('Asia/Jakarta')).strftime("%Y-%m-%d")
         Variable.set("rent_vhc_start_date", for_tomorrow)
     
     
