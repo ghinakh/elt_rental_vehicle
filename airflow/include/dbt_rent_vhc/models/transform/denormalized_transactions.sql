@@ -19,6 +19,7 @@ SELECT
     u.age_account,
     u.age_account_segment,
     u.is_active,
+    u.update_at,
     t.vehicle_id,
     v.active,
     v.vehicle_license_number,

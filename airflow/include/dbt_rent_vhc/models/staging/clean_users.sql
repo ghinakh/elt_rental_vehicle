@@ -13,7 +13,8 @@ WITH source AS (
         driver_license_number,
         driver_license_expiry,
         creation_date,
-        CAST(is_active AS BOOLEAN) AS is_active
+        CAST(is_active AS BOOLEAN) AS is_active,
+        update_at,
     FROM `staging_dataset.raw_users`
     WHERE user_id IS NOT NULL
 ),
@@ -28,7 +29,7 @@ deduplicate AS (
 SELECT
     user_id, first_name, last_name, email, phone_number, 
     driver_license_number, driver_license_expiry, creation_date, 
-    is_active
+    is_active, update_at
 FROM deduplicate
 WHERE row_num = 1
 

@@ -16,7 +16,8 @@ WITH users as (
         driver_license_expiry,
         creation_date,
         date_diff(current_date, creation_date, day) as age_account,
-        is_active
+        is_active,
+        update_at
     FROM {{ ref('snapshot_users') }}
     WHERE dbt_valid_to IS NULL 
     -- Ambil versi data terbaru untuk setiap user:
