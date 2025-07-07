@@ -2,10 +2,10 @@
     materialized='incremental',
     schema='staging_dataset',
     unique_key='rental_id',
-    strategy="merge",
+    strategy='merge',
 ) }}
 
-WITH source AS (
+WITH raw AS (
     SELECT
         rental_id,
         user_id,
@@ -17,18 +17,20 @@ WITH source AS (
         total_amount
     FROM `staging_dataset.raw_transactions`
     WHERE rental_id IS NOT NULL
+),
 
+filtered AS (
+    SELECT *
+    FROM raw
     {% if is_incremental() %}
-      -- Ambil data yang rental_end_time lebih baru dari yang terakhir ada di tabel incremental ini
-      AND rental_end_time > (SELECT MAX(rental_end_time) FROM {{ this }})
+    WHERE rental_end_time > (SELECT MAX(rental_end_time) FROM {{ this }})
     {% endif %}
 ),
 
 deduplicate AS (
-    SELECT
-        *,
-        row_number() OVER (PARTITION BY rental_id ORDER BY rental_end_time DESC) AS row_num
-    FROM source
+    SELECT *,
+        ROW_NUMBER() OVER (PARTITION BY rental_id ORDER BY rental_end_time DESC) AS row_num
+    FROM filtered
 )
 
 SELECT
