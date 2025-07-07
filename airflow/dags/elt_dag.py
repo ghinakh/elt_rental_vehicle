@@ -59,9 +59,9 @@ with DAG(
 
         # select users, vehicles, transactions where date >= 2024-01-01 and date < today() -> 2025-07-04 
         # (it should return data from 2024-01-01 until 2025-07-03 or the original data)
-        df_users = pd.read_sql(f"SELECT * FROM users WHERE update_at >= '{start_date}' AND update_at < CURDATE();", con=engine)
-        df_vehicles = pd.read_sql(f"SELECT * FROM vehicles WHERE STR_TO_DATE(last_update_timestamp, '%d-%m-%Y') >= '{start_date}' AND STR_TO_DATE(last_update_timestamp, '%d-%m-%Y') < CURDATE();", con=engine)
-        df_transactions = pd.read_sql(f"SELECT * FROM transactions WHERE DATE(rental_end_time) >= '{start_date}' AND DATE(rental_end_time) < CURDATE();", con=engine)
+        df_users = pd.read_sql(f"SELECT * FROM users WHERE update_at >= '{start_date}' AND update_at < DATE(CONVERT_TZ(NOW(), '+00:00', '+07:00'));", con=engine)
+        df_vehicles = pd.read_sql(f"SELECT * FROM vehicles WHERE STR_TO_DATE(last_update_timestamp, '%d-%m-%Y') >= '{start_date}' AND STR_TO_DATE(last_update_timestamp, '%d-%m-%Y') < DATE(CONVERT_TZ(NOW(), '+00:00', '+07:00'));", con=engine)
+        df_transactions = pd.read_sql(f"SELECT * FROM transactions WHERE DATE(rental_end_time) >= '{start_date}' AND DATE(rental_end_time) < DATE(CONVERT_TZ(NOW(), '+00:00', '+07:00'));", con=engine)
 
 
         # save it locally in container
