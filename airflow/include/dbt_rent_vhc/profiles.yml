@@ -1,0 +1,14 @@
+dbt_rent_vhc:
+  outputs:
+    dev:
+      dataset: dbt
+      job_execution_timeout_seconds: 300
+      job_retries: 1
+      keyfile: /usr/local/airflow/include/dbt_to_bq_sa.json
+      location: US
+      method: service-account
+      priority: interactive
+      project: lucky-altar-460913-b7
+      threads: 3
+      type: bigquery
+  target: dev

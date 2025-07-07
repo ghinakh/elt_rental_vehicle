@@ -32,5 +32,18 @@ clean-targets:         # directories to be removed by `dbt clean`
 models:
   dbt_rent_vhc:
     # Config indicated by + and applies to all files under models/example/
-    example:
+    staging:
+      +schema: staging_dataset
       +materialized: view
+    transform: 
+      +schema: transform_dataset
+      +materialized: incremental
+    reporting:
+      +schema: reporting_dataset 
+      +materialized: incremental 
+
+snapshots:
+  +schema: snapshot_dataset
+
+seeds:
+  +schema: seed_dataset
